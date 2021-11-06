@@ -1,5 +1,6 @@
 {
     "name": "babdev/phpspec-skip-example-extension",
+    "type": "phpspec-extension",
     "description": "Skip your PhpSpec examples through annotations",
     "license": "MIT",
     "authors": [
@@ -17,15 +18,18 @@
         }
     ],
     "require": {
-        "phpspec/phpspec": "^5.0 || ^6.0 || ^7.0"
+        "php": "^7.4 || ^8.0",
+        "phpspec/phpspec": "^7.0"
+    },
+    "conflict": {
+        "akeneo/phpspec-skip-example-extension": "*",
+        "graham-campbell/phpspec-skip-example-extension": "*",
+        "pamil/phpspec-skip-example-extension": "*"
     },
     "autoload": {
         "psr-4": {
             "Akeneo\\": "src/Akeneo/"
         }
     },
-    "config": {
-        "bin-dir": "bin"
-    },
-    "minimum-stability": "stable"
+    "minimum-stability": "dev"
 }
