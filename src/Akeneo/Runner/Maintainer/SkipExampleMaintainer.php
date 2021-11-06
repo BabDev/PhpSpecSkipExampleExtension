@@ -13,16 +13,13 @@ use PhpSpec\Exception\Example\SkippingException;
 
 final class SkipExampleMaintainer implements Maintainer
 {
-    /**
-     * {@inheritdoc}
-     */
     public function supports(ExampleNode $example): bool
     {
-        return count($this->getRequirements($this->getDocComment($example))) > 0;
+        return count($this->getRequirements($this->getSpecDocComment($example))) > 0 || count($this->getRequirements($this->getExampleDocComment($example))) > 0;
     }
 
     /**
-     * {@inheritdoc}
+     * @throws SkippingException if a required class or interface are not available
      */
     public function prepare(
         ExampleNode $example,
@@ -30,18 +27,22 @@ final class SkipExampleMaintainer implements Maintainer
         MatcherManager $matchers,
         CollaboratorManager $collaborators
     ): void {
-        foreach ($this->getRequirements($this->getDocComment($example)) as $requirement) {
+        $this->checkRequirements($this->getRequirements($this->getSpecDocComment($example)));
+        $this->checkRequirements($this->getRequirements($this->getExampleDocComment($example)));
+    }
+
+    /**
+     * @throws SkippingException if a required class or interface are not available
+     */
+    private function checkRequirements(array $requirements): void
+    {
+        foreach ($requirements as $requirement) {
             if (!class_exists($requirement) && !interface_exists($requirement)) {
-                throw new SkippingException(
-                    sprintf('"%s" is not available', $requirement)
-                );
+                throw new SkippingException(sprintf('"%s" is not available', $requirement));
             }
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function teardown(
         ExampleNode $example,
         Specification $context,
@@ -51,56 +52,35 @@ final class SkipExampleMaintainer implements Maintainer
 
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getPriority(): int
     {
         return 75;
     }
 
     /**
-     * Get required interfaces
-     *
-     * @param string $docComment
-     *
-     * @return array
+     * @return class-string[]
      */
     private function getRequirements(string $docComment): array
     {
         return array_map(
-            function($tag) {
+            static function ($tag): ?string {
                 preg_match('#@require ([^ ]*)#', $tag, $match);
 
                 return $match[1];
             },
             array_filter(
-                array_map(
-                    'trim',
-                    explode(
-                        "\n",
-                        str_replace(
-                            "\r\n",
-                            "\n",
-                            $docComment
-                        )
-                    )
-                ),
-                function($docline) {
-                    return 0 === strpos($docline, '* @require');
-                }
+                array_map('trim', explode("\n", str_replace("\r\n", "\n", $docComment))),
+                static fn (string $docline): bool => 0 === strpos($docline, '* @require')
             )
         );
     }
 
-    /**
-     * Get spec doc comment
-     *
-     * @param ExampleNode $example
-     *
-     * @return string
-     */
-    private function getDocComment(ExampleNode $example): string
+    private function getExampleDocComment(ExampleNode $example): string
+    {
+        return $example->getFunctionReflection()->getDocComment() ?: '';
+    }
+
+    private function getSpecDocComment(ExampleNode $example): string
     {
         return $example->getSpecification()->getClassReflection()->getDocComment() ?: '';
     }
