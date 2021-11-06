@@ -1,36 +1,14 @@
 # PhpSpec Skip Example Extension
 
 This PhpSpec extension allows to skip example through user-friendly annotations.
-[![Build Status](https://travis-ci.org/akeneo/PhpSpecSkipExampleExtension.png?branch=master)](https://travis-ci.org/akeneo/PhpSpecSkipExampleExtension)
+[![Run Tests](https://github.com/BabDev/PhpSpecSkipExampleExtension/actions/workflows/run-tests.yml/badge.svg?branch=1.x)](https://github.com/BabDev/PhpSpecSkipExampleExtension/actions/workflows/run-tests.yml)
 
 ## Installation
 
-Once you have installed PhpSpec (following the documentation on [the official website](http://www.phpspec.net)), add the extension requirement to your `composer.json`:
-
-Using phpspec 4.x,
-
-```json
-{
-    "require": {
-        "akeneo/phpspec-skip-example-extension": "^3.0"
-    }
-}
-```
-
-Using phpspec 5.x,
-
-```json
-{
-    "require": {
-        "akeneo/phpspec-skip-example-extension": "^4.0"
-    }
-}
-```
-
-And run composer update:
+Once you have installed PhpSpec (following the documentation on [the official website](http://www.phpspec.net)), you can install this extension using the following [Composer](https://getcomposer.org/) command:
 
 ```bash
-$ php composer.phar update akeneo/phpspec-skip-example-extension
+composer require babdev/phpspec-skip-example-extension
 ```
 
 ## Configuration
@@ -46,7 +24,7 @@ extensions:
 
 ### @require <class or interface>
 
-Skips all the spec example if the class or interface is not available
+The `@require` annotation can be used on the spec class or any example method. If a requirement is missing from the spec, all examples will be skipped. If a requirement is missing from an example, only that example will be skipped.
 
 ```php
 /**
@@ -55,11 +33,14 @@ Skips all the spec example if the class or interface is not available
 class BridgeBuilderSpec extends ObjectBehavior
 {
     // Will be skipped if the Vendor\Builder\ToolInterface interface does not exist
-    function it_builds_a_brige()
+    function it_builds_a_bridge()
     {
     }
 
-    // Will be skipped if the Vendor\Builder\ToolInterface interface does not exist
+    /**
+     * @require Vendor\Builder\ConcreteTruck
+     */
+    // Will be skipped if the Vendor\Builder\ToolInterface interface or Vendor\Builder\ConcreteTruck class does not exist
     function it_builds_the_road()
     {
     }
