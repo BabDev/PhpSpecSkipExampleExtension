@@ -8,16 +8,16 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [7.4, 8.0]
+        php: [7.4, 8.0, 8.1]
         phpspec: [7.0.*, 7.1.*]
         composer-flags: ['--prefer-stable']
         include:
           - php: 7.4
             phpspec: 7.0.*
             composer-flags: '--prefer-stable --prefer-lowest'
+        exclude:
           - php: 8.1
-            phpspec: 7.1.*
-            composer-flags: '--prefer-stable'
+            phpspec: 7.0.*
 
     name: "PHP ${{ matrix.php }} - phpspec ${{ matrix.phpspec }}${{ matrix.composer-flags != '' && format(' - Composer {0}', matrix.composer-flags) || '' }}"
 
